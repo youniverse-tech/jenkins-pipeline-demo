@@ -5,6 +5,10 @@ pipeline {
             steps {
                 echo 'Hello, Jenkins!'
             }
+             stage('Build') {
+            steps {
+                sh 'echo "Building the project..."'
+            }
         }
     }
 }

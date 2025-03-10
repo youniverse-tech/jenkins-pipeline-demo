@@ -13,7 +13,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'echo "Building the project..."'
+                bat 'echo "Building the project..."'
             }
         }
     }

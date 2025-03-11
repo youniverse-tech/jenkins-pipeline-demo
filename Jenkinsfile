@@ -1,19 +1,35 @@
 pipeline {
-    agent any 
+    agent any
+    
     stages {
-        stage('Clone Repository') { // Renamed to avoid duplicate name
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/youniverse-tech/jenkins-pipeline-demo.git'
+                git 'https://github.com/youniverse-tech/jenkins-pipeline-demo.git'
             }
         }
-        stage('Hello') {
+
+        stage('Setup Python Environment') {
             steps {
-                echo 'Hello, Jenkins!'
+                bat 'python -m venv venv'   // Create a virtual environment
+                bat 'venv\\Scripts\\activate && pip install -r requirements.txt'  // Install dependencies
             }
         }
+
         stage('Build') {
             steps {
-                bat 'echo "Building the project..."'
+                echo 'Python projects usually do not have a build step. Skipping...'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'venv\\Scripts\\activate && pytest tests/'  // Run tests with pytest
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application...'
             }
         }
     }

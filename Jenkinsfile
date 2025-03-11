@@ -3,11 +3,11 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/youniverse-tech/jenkins-pipeline-demo.git'
+                git branch: 'main', credentialsId: 'bbd4faff-f5c7-47df-9351-76ab8d014fca', url: 'https://github.com/youniverse-tech/jenkins-pipeline-demo.git'
             }
         }
 
-        stage('Check Python Path') {  //  Debugging Step
+        stage('Check Python Path') {
             steps {
                 bat 'where python'
                 bat 'python --version'
@@ -17,7 +17,7 @@ pipeline {
         stage('Setup Python Environment') {
             steps {
                 bat 'python -m venv venv'
-                bat 'venv\\Scripts\\activate && pip install -r requirements.txt'
+                bat 'venv\\Scripts\\activate && pip install --upgrade pip && pip install -r requirements.txt'
             }
         }
 
@@ -29,7 +29,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                bat 'venv\\Scripts\\activate && pytest tests/'
+                bat 'venv\\Scripts\\activate && venv\\Scripts\\python.exe -m pytest tests/'
             }
         }
 

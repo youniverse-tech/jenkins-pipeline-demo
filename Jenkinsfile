@@ -1,17 +1,16 @@
 pipeline {
     agent any
-    
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/youniverse-tech/jenkins-pipeline-demo.git'
+                git branch: 'main', url: 'https://github.com/youniverse-tech/jenkins-pipeline-demo.git'
             }
         }
 
         stage('Setup Python Environment') {
             steps {
-                bat 'python -m venv venv'   // Create a virtual environment
-                bat 'venv\\Scripts\\activate && pip install -r requirements.txt'  // Install dependencies
+                bat 'python -m venv venv'
+                bat 'venv\\Scripts\\activate && pip install -r requirements.txt'
             }
         }
 
@@ -23,7 +22,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                bat 'venv\\Scripts\\activate && pytest tests/'  // Run tests with pytest
+                bat 'venv\\Scripts\\activate && pytest tests/'
             }
         }
 
@@ -32,14 +31,5 @@ pipeline {
                 echo 'Deploying the application...'
             }
         }
-        
-       stage('Checkout with Credentials') {
-            steps {
-                git branch: 'main', 
-                    credentialsId: 'bbd4faff-f5c7-47df-9351-76ab8d014fca', 
-                    url: 'https://github.com/youniverse-tech/jenkins-pipeline-demo.git'
-             }
-        }
-
     }
 }

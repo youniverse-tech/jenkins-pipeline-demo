@@ -32,5 +32,14 @@ pipeline {
                 echo 'Deploying the application...'
             }
         }
+        
+        stage('Checkout Code') {
+            steps {
+                git credentialsId: 'bbd4faff-f5c7-47df-9351-76ab8d014fca', 
+                url: 'https://github.com/youniverse-tech/jenkins-pipeline-demo.git', 
+                branch: 'main'
+             }
+        }
+
     }
 }

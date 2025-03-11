@@ -7,6 +7,13 @@ pipeline {
             }
         }
 
+        stage('Check Python Path') {  //  Debugging Step
+            steps {
+                bat 'where python'
+                bat 'python --version'
+            }
+        }
+
         stage('Setup Python Environment') {
             steps {
                 bat 'python -m venv venv'

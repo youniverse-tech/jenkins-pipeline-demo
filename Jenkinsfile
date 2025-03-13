@@ -29,7 +29,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                bat 'venv\\Scripts\\python.exe -m pytest tests/'
+                bat 'venv\\Scripts\\python.exe -m pytest'
             }
         }
 

@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environment {
+        PYTHONUTF8 = '1'  // Set UTF-8 encoding to avoid UnicodeEncodeError
+    }
     stages {
         stage('Checkout Code') {
             steps {

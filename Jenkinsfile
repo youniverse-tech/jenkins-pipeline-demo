@@ -38,5 +38,18 @@ pipeline {
                 echo 'Deploying the application...'
             }
         }
+
+        stage('Post-Build Log Filtering') {
+            steps {
+                script {
+                    def result = bat(script: 'python scripts/filter_logs.py', returnStatus: true)
+                    if (result != 0) {
+                        error 'Log filtering script failed!'
+                    } else {
+                        echo 'Filtered logs saved successfully in filtered_logs.txt'
+                    }
+                }
+            }
+        }
     }
 }

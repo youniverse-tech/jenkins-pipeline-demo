@@ -40,44 +40,62 @@ def extract_features(logs):
     features = []
     for log in logs:
         length = len(log)
-        uppercase_ratio = sum(1 for c in log if c.isupper()) / length
-        special_chars = sum(1 for c in log if not c.isalnum() and c != " ") / length
+        uppercase_ratio = sum(1 for c in log if c.isupper()) / max(1, length)
+        special_chars = sum(1 for c in log if not c.isalnum() and c != " ") / max(1, length)
         features.append([length, uppercase_ratio, special_chars])
     return np.array(features)
 
 def detect_anomalies(logs):
-    """Detects anomalies using Isolation Forest."""
+    """Detects anomalies using Isolation Forest with better training."""
     if not logs:
         print("⚠️ No logs to analyze.")
         return []
 
-    if os.path.exists(model_file):
-        model = joblib.load(model_file)
-    else:
-        print("🔄 Training new anomaly detection model...")
-        normal_logs = ["INFO: Application started", "DEBUG: Database connected", "INFO: Request processed"]
+    # Expanded normal logs dataset (More diverse & realistic)
+    normal_logs = [
+        "INFO: Application started", "DEBUG: Database connected", "INFO: Request processed",
+        "INFO: Health check passed", "DEBUG: Configuration loaded", "INFO: User logged in",
+        "INFO: Cache refreshed", "INFO: Security check complete", "DEBUG: Load balancer updated",
+        "INFO: Job execution completed", "INFO: Service restarted", "DEBUG: Connection established",
+        "INFO: Scheduled job executed", "INFO: API request successful", "DEBUG: Memory usage normal",
+        "INFO: Disk cleanup process completed", "INFO: Background job completed",
+        "INFO: Configuration reloaded successfully", "INFO: Authentication successful",
+        "DEBUG: No issues found in audit logs"
+    ]
+    
+    # Train the model only if it doesn’t exist or needs an update
+    if not os.path.exists(model_file) or len(normal_logs) > 15:
+        print("🔄 Training optimized anomaly detection model with diverse normal logs...")
         normal_features = extract_features(normal_logs)
-        model = IsolationForest(contamination=0.1, random_state=42)
+        model = IsolationForest(contamination=0.08, random_state=42)  # Lower threshold for anomalies
         model.fit(normal_features)
         joblib.dump(model, model_file)
+        print("✅ Improved model trained and saved.")
 
+    # Load the trained model and detect anomalies
+    model = joblib.load(model_file)
     log_features = extract_features(logs)
     anomaly_predictions = model.predict(log_features)
 
     anomalies = [logs[i] for i in range(len(logs)) if anomaly_predictions[i] == -1]
+    
     with open(anomaly_log_file, "w", encoding="utf-8") as f:
         f.write("\n".join(anomalies))
 
-    print(f"⚠️ Anomalies detected and saved in: {anomaly_log_file}")
+    if anomalies:
+        print(f"⚠️ {len(anomalies)} anomalies detected and saved in: {anomaly_log_file}")
+    else:
+        print("✅ No anomalies detected.")
+
     return anomalies
 
 if __name__ == "__main__":
     print("🚀 Log filtering & AI anomaly detection started...")
-    
+
     # Step 1: Filter logs
     filtered_logs = filter_logs(log_file_path, log_levels_to_filter, filtered_log_file)
-    
+
     # Step 2: Apply AI-based anomaly detection
     detect_anomalies(filtered_logs)
-    
+
     print("✅ Process completed successfully!")

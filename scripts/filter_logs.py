@@ -8,7 +8,8 @@ from sklearn.ensemble import IsolationForest
 os.environ["PYTHONUTF8"] = "1"
 
 # File paths
-log_file_path = "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Jenkins-Pipeline-Demo\\jenkins.log"
+log_file_path = r"C:\ProgramData\Jenkins\.jenkins\logs\jenkins.log"
+
 filtered_log_file = "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Jenkins-Pipeline-Demo\\filtered_logs.txt"
 anomaly_log_file = "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Jenkins-Pipeline-Demo\\anomalies.txt"
 model_file = "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Jenkins-Pipeline-Demo\\log_anomaly_model.pkl"
@@ -16,6 +17,13 @@ model_file = "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Jenkins-Pipeline-De
 # Define log levels to filter
 log_levels_to_filter = ["SEVERE", "WARNING", "ERROR"]
 log_pattern = re.compile(r"\b(SEVERE|WARNING|ERROR)\b")
+
+# ✅ List of common warnings to ignore
+common_warnings = [
+    "Empty contextPath",
+    "Failed to check updates",  
+    "Unrecognized request",  
+]
 
 def filter_logs(log_file, levels, output_file):
     """Filters logs containing specified levels and saves them."""
@@ -35,6 +43,13 @@ def filter_logs(log_file, levels, output_file):
         print(f"❌ Log file not found at: {log_file}")
         return []
 
+# ✅ Function to check if a log is an anomaly
+def is_anomaly(log_line):
+    for warning in common_warnings:
+        if warning in log_line:
+            return False  # Ignore this warning
+    return True  # Treat as anomaly
+
 def extract_features(logs):
     """Converts logs into numerical features for AI anomaly detection."""
     features = []
@@ -48,7 +63,7 @@ def extract_features(logs):
 def detect_anomalies(logs):
     """Detects anomalies using Isolation Forest with better training."""
     if not logs:
-        print("⚠️ No logs to analyze.")
+        print("⚠️ No logs to analyze. Skipping anomaly detection.")
         return []
 
     # Expanded normal logs dataset (More diverse & realistic)
@@ -62,7 +77,7 @@ def detect_anomalies(logs):
         "INFO: Configuration reloaded successfully", "INFO: Authentication successful",
         "DEBUG: No issues found in audit logs"
     ]
-    
+
     # Train the model only if it doesn’t exist or needs an update
     if not os.path.exists(model_file) or len(normal_logs) > 15:
         print("🔄 Training optimized anomaly detection model with diverse normal logs...")
@@ -75,10 +90,18 @@ def detect_anomalies(logs):
     # Load the trained model and detect anomalies
     model = joblib.load(model_file)
     log_features = extract_features(logs)
+
+    # **Fix: Ensure log_features is a 2D array**
+    if log_features.size == 0:
+        print("⚠️ No valid log features extracted. Skipping anomaly detection.")
+        return []
+
+    log_features = log_features.reshape(-1, 3)  # Ensure it is a 2D array with 3 features per log
+
     anomaly_predictions = model.predict(log_features)
 
     anomalies = [logs[i] for i in range(len(logs)) if anomaly_predictions[i] == -1]
-    
+
     with open(anomaly_log_file, "w", encoding="utf-8") as f:
         f.write("\n".join(anomalies))
 

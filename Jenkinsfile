@@ -45,11 +45,26 @@ pipeline {
         stage('Post-Build Log Filtering') {
             steps {
                 script {
-                    def result = bat(script: 'python scripts/filter_logs.py', returnStatus: true)
+                    echo '🚀 Running log filtering...'
+                    def result = bat(script: 'venv\\Scripts\\python.exe scripts/filter_logs.py', returnStatus: true)
                     if (result != 0) {
-                        error 'Log filtering script failed!'
+                        error '❌ Log filtering script failed!'
                     } else {
-                        echo 'Filtered logs saved successfully in filtered_logs.txt'
+                        echo '✅ Filtered logs saved successfully in filtered_logs.txt'
+                    }
+                }
+            }
+        }
+
+        stage('Post-Build AI Anomaly Detection') {
+            steps {
+                script {
+                    echo '🤖 Running AI-based anomaly detection...'
+                    def result = bat(script: 'venv\\Scripts\\python.exe scripts/filter_logs.py', returnStatus: true)
+                    if (result != 0) {
+                        error '❌ AI anomaly detection failed!'
+                    } else {
+                        echo '⚠️ Anomalies detected and saved in anomalies.txt'
                     }
                 }
             }

@@ -1,8 +1,10 @@
 pipeline {
     agent any
+
     environment {
-        PYTHONUTF8 = '1'  // Set UTF-8 encoding to avoid UnicodeEncodeError
+        PYTHONUTF8 = '1' // Set UTF-8 encoding to avoid UnicodeEncodeError
     }
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -26,7 +28,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Python projects usually do not have a build step. Skipping...'
+                echo '🔨 Skipping Build step (Not required for Python projects)'
             }
         }
 
@@ -38,14 +40,14 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploying the application...'
+                echo '🚀 Deploying the application...'
             }
         }
 
         stage('Post-Build Log Filtering') {
             steps {
                 script {
-                    echo '🚀 Running log filtering...'
+                    echo '🛠 Running log filtering...'
                     def result = bat(script: 'venv\\Scripts\\python.exe scripts/filter_logs.py', returnStatus: true)
                     if (result != 0) {
                         error '❌ Log filtering script failed!'
@@ -60,7 +62,7 @@ pipeline {
             steps {
                 script {
                     echo '🤖 Running AI-based anomaly detection...'
-                    def result = bat(script: 'venv\\Scripts\\python.exe scripts/filter_logs.py', returnStatus: true)
+                    def result = bat(script: 'venv\\Scripts\\python.exe scripts/anomaly_detection.py', returnStatus: true)
                     if (result != 0) {
                         error '❌ AI anomaly detection failed!'
                     } else {

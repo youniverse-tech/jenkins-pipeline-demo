@@ -1,0 +1,4 @@
+2025-03-18 06:44:31.535+0000 [id=1]	WARNING	o.e.j.ee9.nested.ContextHandler#setContextPath: Empty contextPath
+2025-03-18 16:38:46.757+0000 [id=1]	WARNING	o.e.j.ee9.nested.ContextHandler#setContextPath: Empty contextPath
+2025-03-18 17:21:47.382+0000 [id=343]	SEVERE	jenkins.model.Jenkins#_cleanUpPluginServletFilters: Failed to stop filters
+2025-03-18 17:21:51.085+0000 [id=1]	WARNING	o.e.j.ee9.nested.ContextHandler#setContextPath: Empty contextPath

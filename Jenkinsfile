@@ -21,9 +21,13 @@ pipeline {
 
         stage('Setup Python Environment') {
             steps {
-                bat 'python -m venv venv'
-                bat 'venv\\Scripts\\python.exe -m pip install --upgrade pip'
-                bat 'venv\\Scripts\\python.exe -m pip install -r requirements.txt'
+                bat '''
+                if not exist venv (
+                    python -m venv venv
+                )
+                venv\\Scripts\\python.exe -m pip install --upgrade pip
+                venv\\Scripts\\python.exe -m pip install -r requirements.txt
+                '''
             }
         }
 
@@ -71,10 +75,7 @@ pipeline {
             steps {
                 script {
                     echo '🤖 Running AI-based anomaly detection...'
-                    def result = bat(script: '''
-                        call venv\\Scripts\\activate
-                        venv\\Scripts\\python.exe scripts/anomaly_detection.py
-                    ''', returnStatus: true)
+                    def result = bat(script: 'venv\\Scripts\\python.exe scripts/anomaly_detection.py', returnStatus: true)
 
                     if (result != 0) {
                         error '❌ AI anomaly detection failed!'
@@ -91,8 +92,8 @@ pipeline {
             script {
                 def message = "Jenkins Pipeline Execution Status: ${currentBuild.currentResult} 🚀"
                 bat """
-                    curl -X POST -H "Content-type: application/json" ^ 
-                    --data "{\\"text\\": \\"${message}\\"}" ^ 
+                    curl -X POST -H "Content-type: application/json" ^
+                    --data "{\\"text\\": \\"${message}\\"}" ^
                     "https://hooks.slack.com/services/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"
                 """
             }

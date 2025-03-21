@@ -22,13 +22,22 @@ pipeline {
         stage('Setup Python Environment') {
             steps {
                 bat 'python -m venv venv'
-                bat 'venv\\Scripts\\python.exe -m pip install --upgrade pip && venv\\Scripts\\python.exe -m pip install -r requirements.txt'
+                bat 'venv\\Scripts\\python.exe -m pip install --upgrade pip'
+                bat 'venv\\Scripts\\python.exe -m pip install -r requirements.txt'
             }
         }
 
         stage('Build') {
             steps {
-                echo '🔨 Skipping Build step (Not required for Python projects)'
+                script {
+                    echo '🔨 Running Build step...'
+                    def result = bat(script: 'venv\\Scripts\\python.exe setup.py build', returnStatus: true)
+                    if (result != 0) {
+                        error '❌ Build step failed!'
+                    } else {
+                        echo '✅ Build completed successfully!'
+                    }
+                }
             }
         }
 
@@ -64,9 +73,9 @@ pipeline {
                     echo '🤖 Running AI-based anomaly detection...'
                     def result = bat(script: '''
                         call venv\\Scripts\\activate
-                        python -m pip install --upgrade pip
-                        python -m pip install requests
-                        python scripts/anomaly_detection.py
+                        venv\\Scripts\\python.exe -m pip install --upgrade pip
+                        venv\\Scripts\\python.exe -m pip install requests
+                        venv\\Scripts\\python.exe scripts/anomaly_detection.py
                     ''', returnStatus: true)
 
                     if (result != 0) {
@@ -79,14 +88,13 @@ pipeline {
         }
     }
 
-    // 🔹 Place Slack Notification in the post block
     post {
         always {
             script {
                 def message = "Jenkins Pipeline Execution Status: ${currentBuild.currentResult} 🚀"
                 bat """
-                    curl -X POST -H "Content-type: application/json" \\
-                    --data "{\\"text\\": \\"${message}\\"}" \\
+                    curl -X POST -H "Content-type: application/json" ^
+                    --data "{\\"text\\": \\"${message}\\"}" ^
                     "https://hooks.slack.com/services/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"
                 """
             }

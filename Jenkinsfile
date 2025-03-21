@@ -78,7 +78,7 @@ pipeline {
         always {
             script {
                 def message = "Jenkins Pipeline Execution Status: ${currentBuild.currentResult} 🚀"
-                sh """
+                bat """
                     curl -X POST -H "Content-type: application/json" \\
                     --data "{\\"text\\": \\"${message}\\"}" \\
                     "https://hooks.slack.com/services/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"

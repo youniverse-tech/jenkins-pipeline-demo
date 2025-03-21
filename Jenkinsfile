@@ -62,7 +62,13 @@ pipeline {
             steps {
                 script {
                     echo '🤖 Running AI-based anomaly detection...'
-                    def result = bat(script: 'venv\\Scripts\\python.exe scripts/anomaly_detection.py', returnStatus: true)
+                    def result = bat(script: '''
+                        call venv\\Scripts\\activate
+                        python -m pip install --upgrade pip
+                        python -m pip install requests
+                        python scripts/anomaly_detection.py
+                    ''', returnStatus: true)
+
                     if (result != 0) {
                         error '❌ AI anomaly detection failed!'
                     } else {

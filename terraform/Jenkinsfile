@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    environment {
+        TF_CLI_ARGS = "-input=false"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/youniverse-tech/jenkins-pipeline-demo.git'
+            }
+        }
+
+        stage('Initialize Terraform') {
+            steps {
+                script {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Validate Terraform Configuration') {
+            steps {
+                script {
+                    sh 'terraform validate'
+                }
+            }
+        }
+
+        stage('Plan Terraform Changes') {
+            steps {
+                script {
+                    sh 'terraform plan -out=tfplan'
+                }
+            }
+        }
+
+        stage('Apply Terraform Changes') {
+            steps {
+                script {
+                    sh 'terraform apply -auto-approve tfplan'
+                }
+            }
+        }
+
+        stage('Destroy Infrastructure (Optional)') {
+            when {
+                expression { return false }  // Set to true if you want auto destroy
+            }
+            steps {
+                script {
+                    sh 'terraform destroy -auto-approve'
+                }
+            }
+        }
+    }
+}

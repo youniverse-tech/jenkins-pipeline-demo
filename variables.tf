@@ -9,3 +9,9 @@ variable "image_name" {
   type        = string
   default     = "nginx:latest"
 }
+
+variable "num_containers" {
+  description = "Number of containers to scale"
+  type        = number
+  default     = 1  # Default is 1, can be overridden in command
+}

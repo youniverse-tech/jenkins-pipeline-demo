@@ -1,35 +1,36 @@
 terraform {
   required_providers {
-    docker = {                         # Defining the provider for Docker
-      source  = "kreuzwerker/docker"    # This tells Terraform to use the Docker plugin
-      version = "~> 3.0.2"              # The version constraint (ensures compatibility)
+    docker = {                         
+      source  = "kreuzwerker/docker"    
+      version = "~> 3.0.2"              
     }
   }
 }
 
-provider "docker" {}  # This initializes the Docker provider so Terraform can interact with Docker
+provider "docker" {}  
 
 # -------------------- Docker Image Resource --------------------
 resource "docker_image" "nginx" {
-  name         = var.image_name    # Pulls the Docker image from variables.tf
-  keep_locally = false             # This ensures the image isn't stored locally after deployment
+  name         = var.image_name    
+  keep_locally = false             
 }
 
-# -------------------- Docker Container Resource --------------------
+# -------------------- Docker Container Resource (With Scaling) --------------------
 resource "docker_container" "nginx" {
-  image = docker_image.nginx.image_id  # Uses the image ID from docker_image above
-  name  = var.container_name           # Fetches container name from variables.tf
+  count = var.num_containers  
 
-  # Mapping port 8081 (host) to 80 (container)
+  image = docker_image.nginx.image_id  
+  name  = "${var.container_name}-${count.index}"  # Unique names
+
+  # Mapping unique ports: 8081, 8082, ...
   ports {
     internal = 80
-    external = 8081
+    external = 8081 + count.index  
   }
 
-  # ✅ Fix: Moved inside the container resource block
-  restart = "always"  # Restart policy: Always restart unless manually stopped
+  restart = "always"  
 
   env = [
-    "ENV=production"  # Example environment variable (can be modified later)
+    "ENV=production"  
   ]
 }

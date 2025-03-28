@@ -15,7 +15,7 @@ pipeline {
         stage('Initialize Terraform') {
             steps {
                 script {
-                    sh 'terraform init'
+                    bat 'terraform init'
                 }
             }
         }
@@ -23,7 +23,7 @@ pipeline {
         stage('Validate Terraform Configuration') {
             steps {
                 script {
-                    sh 'terraform validate'
+                    bat 'terraform validate'
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
         stage('Plan Terraform Changes') {
             steps {
                 script {
-                    sh 'terraform plan -out=tfplan'
+                    bat 'terraform plan -out=tfplan'
                 }
             }
         }
@@ -39,7 +39,7 @@ pipeline {
         stage('Apply Terraform Changes') {
             steps {
                 script {
-                    sh 'terraform apply -auto-approve tfplan'
+                    bat 'terraform apply -auto-approve tfplan'
                 }
             }
         }
@@ -50,7 +50,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh 'terraform destroy -auto-approve'
+                    bat 'terraform destroy -auto-approve'
                 }
             }
         }

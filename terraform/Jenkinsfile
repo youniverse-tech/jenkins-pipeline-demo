@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        TF_CLI_ARGS = "-input=false"
+        TF_CLI_ARGS = " -input=false"
     }
 
     stages {
@@ -15,7 +15,7 @@ pipeline {
         stage('Initialize Terraform') {
             steps {
                 script {
-                    bat 'terraform init'
+                    bat 'cd terraform && terraform init'
                 }
             }
         }
@@ -23,7 +23,7 @@ pipeline {
         stage('Validate Terraform Configuration') {
             steps {
                 script {
-                    bat 'terraform validate'
+                    bat 'cd terraform && terraform validate %TF_CLI_ARGS%'
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
         stage('Plan Terraform Changes') {
             steps {
                 script {
-                    bat 'terraform plan -out=tfplan'
+                    bat 'cd terraform && terraform plan -out=tfplan'
                 }
             }
         }
@@ -39,7 +39,7 @@ pipeline {
         stage('Apply Terraform Changes') {
             steps {
                 script {
-                    bat 'terraform apply -auto-approve tfplan'
+                    bat 'cd terraform && terraform apply -auto-approve tfplan'
                 }
             }
         }
@@ -50,7 +50,7 @@ pipeline {
             }
             steps {
                 script {
-                    bat 'terraform destroy -auto-approve'
+                    bat 'cd terraform && terraform destroy -auto-approve'
                 }
             }
         }
